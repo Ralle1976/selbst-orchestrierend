@@ -211,7 +211,35 @@ orchestrate replan                    # Re-prioritize tasks
 orchestrate stuck "error description" # Get help with blockers
 orchestrate summary                   # Generate session summary
 orchestrate next                      # Suggest next action
+orchestrate watch                     # Start watch daemon (monitors Ralph)
+orchestrate watch --stop              # Stop watch daemon
+orchestrate hint                      # Read current orchestrator hint
 ```
+
+#### Watch Daemon (NEW!)
+
+The watch daemon automatically monitors Ralph and intervenes when stuck:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Terminal 1: orchestrate watch                          │
+│     ├──▶ Monitors @fix_plan.md every 60s               │
+│     ├──▶ Detects stalls (>180s without change)         │
+│     ├──▶ Writes hints → .orchestrator_hints.md         │
+│     └──▶ Escalates after 3 consecutive stalls          │
+│                                                         │
+│  Terminal 2: ralph --monitor                            │
+│     ├──▶ Reads PROMPT.md + @fix_plan.md                │
+│     ├──▶ Checks .orchestrator_hints.md for guidance    │
+│     └──▶ Marks [x] → Watch detects progress            │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Communication Files:**
+| File | Purpose |
+|------|---------|
+| `.orchestrator_hints.md` | Hints from watch daemon |
+| `.ralph_status.json` | Ralph status (optional) |
 
 ### 2. Multi-Provider Consolidator (`src/multi_provider_consolidator.py`)
 

@@ -134,6 +134,28 @@ suggest_next() {
     python3 "$ORCHESTRATOR" next 2>/dev/null || echo "  orchestrator nicht verfügbar"
 }
 
+# Watch-Daemon starten
+start_watch() {
+    WATCH_PID_FILE="$MEMORY_DIR/.orchestrator_watch.pid"
+
+    if [ -f "$WATCH_PID_FILE" ]; then
+        OLD_PID=$(cat "$WATCH_PID_FILE")
+        if kill -0 "$OLD_PID" 2>/dev/null; then
+            log "Watch Daemon läuft bereits (PID: $OLD_PID)"
+            return 0
+        fi
+    fi
+
+    log "Starte Orchestrator Watch Daemon..."
+    nohup python3 "$ORCHESTRATOR" watch > "$MEMORY_DIR/orchestrator_watch.log" 2>&1 &
+    success "Watch Daemon gestartet (PID: $!)"
+}
+
+# Watch-Daemon stoppen
+stop_watch() {
+    python3 "$ORCHESTRATOR" watch --stop 2>/dev/null || true
+}
+
 # Ralph starten
 start_ralph() {
     if [ ! -f "PROMPT.md" ] && [ ! -f "@fix_plan.md" ]; then
@@ -148,6 +170,9 @@ start_ralph() {
         return 1
     fi
 
+    # Starte Watch-Daemon automatisch
+    start_watch
+
     log "Starte Ralph Loop..."
     ralph --monitor
 }
@@ -159,6 +184,7 @@ main() {
     case "${1:-}" in
         --stop)
             stop_daemon
+            stop_watch
             exit 0
             ;;
         --status)
