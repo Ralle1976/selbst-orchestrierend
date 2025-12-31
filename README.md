@@ -173,42 +173,65 @@ The system uses multiple AI providers with automatic fallback:
 
 ## Quick Start
 
-> ⚠️ **IMPORTANT:** Run `orchestrate init` in a **regular terminal**, NOT inside Claude Code!
-> If you run it inside Claude, Claude will see the generated files and start working immediately
-> without the Ralph loop or Watch daemon - losing all orchestration benefits.
+> ⚠️ **IMPORTANT:** Run these commands in a **regular terminal**, NOT inside Claude Code!
+
+### All in ONE Terminal - Simple!
 
 ```bash
-# 1. Open a REGULAR TERMINAL (not Claude Code!)
 cd /your/project
-
-# 2. Initialize a new task (Gemini plans everything)
-orchestrate init "Create a REST API for a booking system with Python Flask"
-
-# 3. Start Watch daemon (monitors for stalls)
+orchestrate init "Your task description here"
 orchestrate watch &
-
-# 4. Start autonomous execution (this starts Claude properly!)
 ralph --monitor
-
-# 5. If stuck on something (in another terminal)
-orchestrate stuck "Getting connection timeout errors"
-
-# 6. Check progress analysis
-orchestrate analyze
-
-# 7. End session with summary
-orchestrate summary
 ```
 
-### Why This Workflow?
+**That's it!** 🚀
 
-| Step | What happens |
-|------|--------------|
-| `orchestrate init` | Gemini creates PROMPT.md + @fix_plan.md |
-| `orchestrate watch` | Daemon monitors @fix_plan.md for stalls |
-| `ralph --monitor` | Starts Claude in a controlled loop |
-| Claude | Executes tasks, marks [x] in @fix_plan.md |
-| Watch Daemon | Detects stalls, writes hints for Claude |
+### What Each Command Does
+
+| Command | New Terminal? | What Happens |
+|---------|---------------|--------------|
+| `orchestrate init "..."` | No | Gemini creates PROMPT.md + @fix_plan.md |
+| `orchestrate watch &` | No | Runs in background (`&`), monitors for stalls |
+| `ralph --monitor` | No | Opens tmux, starts Claude in controlled loop |
+
+### Example with Real Task
+
+```bash
+cd ~/projects/my-api
+orchestrate init "Create a REST API for a booking system with Flask, JWT auth, and SQLite"
+orchestrate watch &
+ralph --monitor
+```
+
+### During Development (Optional)
+
+```bash
+# If stuck on something (in another terminal)
+orchestrate stuck "Getting connection timeout errors"
+
+# Check progress
+orchestrate analyze
+
+# End session
+orchestrate summary
+orchestrate watch --stop
+```
+
+### Why NOT Inside Claude Code?
+
+```
+❌ WRONG: Running inside Claude
+   → Claude sees files immediately
+   → Starts working without Ralph loop
+   → No Watch daemon monitoring
+   → Loses orchestration benefits
+
+✅ CORRECT: Running in terminal
+   → Gemini plans strategically
+   → Ralph controls Claude
+   → Watch daemon monitors
+   → Memory persists across sessions
+```
 
 ## Components
 
@@ -520,24 +543,64 @@ Das System nutzt mehrere KI-Provider mit automatischem Fallback:
 
 ## Schnellstart
 
+> ⚠️ **WICHTIG:** Diese Befehle im **normalen Terminal** ausführen, NICHT in Claude Code!
+
+### Alles in EINEM Terminal - Einfach!
+
 ```bash
-# 1. System starten (startet Daemon, zeigt Status)
-claude-start
-
-# 2. Neue Aufgabe initialisieren (Gemini plant alles)
-orchestrate init "Erstelle eine REST API für ein Buchungssystem mit Python Flask"
-
-# 3. Autonome Ausführung starten
+cd /dein/projekt
+orchestrate init "Deine Aufgabenbeschreibung hier"
+orchestrate watch &
 ralph --monitor
+```
 
-# 4. Bei Blockern
+**Das war's!** 🚀
+
+### Was jeder Befehl macht
+
+| Befehl | Neues Terminal? | Was passiert |
+|--------|-----------------|--------------|
+| `orchestrate init "..."` | Nein | Gemini erstellt PROMPT.md + @fix_plan.md |
+| `orchestrate watch &` | Nein | Läuft im Hintergrund (`&`), überwacht auf Stillstand |
+| `ralph --monitor` | Nein | Öffnet tmux, startet Claude kontrolliert |
+
+### Beispiel mit echter Aufgabe
+
+```bash
+cd ~/projekte/meine-api
+orchestrate init "Erstelle REST API für Buchungssystem mit Flask, JWT Auth und SQLite"
+orchestrate watch &
+ralph --monitor
+```
+
+### Während der Entwicklung (Optional)
+
+```bash
+# Bei Blockern (in anderem Terminal)
 orchestrate stuck "Bekomme Connection Timeout Fehler"
 
-# 5. Fortschrittsanalyse prüfen
+# Fortschritt prüfen
 orchestrate analyze
 
-# 6. Session mit Zusammenfassung beenden
+# Session beenden
 orchestrate summary
+orchestrate watch --stop
+```
+
+### Warum NICHT in Claude Code?
+
+```
+❌ FALSCH: Ausführung in Claude
+   → Claude sieht Dateien sofort
+   → Arbeitet ohne Ralph-Loop
+   → Kein Watch-Daemon Überwachung
+   → Verliert Orchestrierungs-Vorteile
+
+✅ RICHTIG: Ausführung im Terminal
+   → Gemini plant strategisch
+   → Ralph kontrolliert Claude
+   → Watch-Daemon überwacht
+   → Gedächtnis bleibt zwischen Sessions
 ```
 
 ## Komponenten
