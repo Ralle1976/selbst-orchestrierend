@@ -206,6 +206,9 @@ ralph --monitor
 ### During Development (Optional)
 
 ```bash
+# Add new task to current session
+orchestrate add "Also add user profile editing"
+
 # If stuck on something (in another terminal)
 orchestrate stuck "Getting connection timeout errors"
 
@@ -246,6 +249,7 @@ The strategic brain that:
 **Commands:**
 ```bash
 orchestrate init "task description"  # Initialize new task
+orchestrate add "additional task"    # Add task to running session
 orchestrate analyze                   # Analyze current situation
 orchestrate replan                    # Re-prioritize tasks
 orchestrate stuck "error description" # Get help with blockers
@@ -576,6 +580,9 @@ ralph --monitor
 ### Während der Entwicklung (Optional)
 
 ```bash
+# Neue Aufgabe zur laufenden Session hinzufügen
+orchestrate add "Auch Benutzerprofil-Bearbeitung hinzufügen"
+
 # Bei Blockern (in anderem Terminal)
 orchestrate stuck "Bekomme Connection Timeout Fehler"
 
@@ -616,11 +623,15 @@ Das strategische Gehirn, das:
 **Befehle:**
 ```bash
 orchestrate init "Aufgabenbeschreibung"  # Neue Aufgabe initialisieren
+orchestrate add "Zusätzliche Aufgabe"    # Task zu laufender Session hinzufügen
 orchestrate analyze                       # Aktuelle Situation analysieren
 orchestrate replan                        # Aufgaben neu priorisieren
 orchestrate stuck "Fehlerbeschreibung"    # Hilfe bei Blockern
 orchestrate summary                       # Session-Zusammenfassung erstellen
 orchestrate next                          # Nächste Aktion vorschlagen
+orchestrate watch                         # Watch-Daemon starten
+orchestrate watch --stop                  # Watch-Daemon stoppen
+orchestrate hint                          # Aktuellen Hint lesen
 ```
 
 ### 2. Multi-Provider Consolidator (`src/multi_provider_consolidator.py`)
