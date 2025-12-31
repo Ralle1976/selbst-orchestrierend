@@ -656,3 +656,65 @@ MIT License - see [LICENSE](LICENSE) for details.
 *Built with AI, orchestrated by AI, for humans who want to get things done.*
 
 *Gebaut mit KI, orchestriert von KI, für Menschen die Dinge erledigen wollen.*
+
+---
+
+## Project Wizard / Projekt-Wizard
+
+### Interactive Project Setup / Interaktives Projekt-Setup
+
+The Project Wizard helps you define your project through targeted questions and generates optimized configuration files.
+
+Der Projekt-Wizard hilft dir, dein Projekt durch gezielte Fragen zu definieren und generiert optimierte Konfigurationsdateien.
+
+### Usage / Nutzung
+
+```bash
+# Interactive mode (recommended)
+project-wizard interactive
+
+# Quick setup from description
+project-wizard quick "Build a REST API for user management"
+
+# Show available templates
+project-wizard templates
+```
+
+### What the Wizard Does / Was der Wizard macht
+
+1. **Asks targeted questions** about project type, technologies, features
+2. **Suggests technologies** based on your choices
+3. **Recommends agents/skills** for your project type
+4. **Generates optimized** PROMPT.md and @fix_plan.md
+
+### Available Templates / Verfügbare Templates
+
+| Template | Description |
+|----------|-------------|
+| Web Fullstack | Frontend + Backend + Database |
+| REST API | Backend-only API service |
+| CLI Tool | Command-line application |
+| Automation | Workflow automation scripts |
+
+### Example Session / Beispiel-Session
+
+```
+$ project-wizard interactive
+
+╔═══════════════════════════════════════════════════════════╗
+║         🧙 Project Wizard - Projekt-Initialisierung       ║
+╚═══════════════════════════════════════════════════════════╝
+
+? What kind of project? → REST API
+? Preferred language?   → Python
+? Features needed?      → Auth, Database, Tests
+? Scope?                → MVP
+
+✅ Files created:
+   • PROMPT.md
+   • @fix_plan.md
+
+Recommended agents: api-architect, security-reviewer
+Next step: ralph --monitor
+```
+
