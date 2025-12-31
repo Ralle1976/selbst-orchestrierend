@@ -1,0 +1,16 @@
+# Self-Orchestrating Multi-Agent System Requirements
+# Python 3.8+ required
+
+# No external Python dependencies required for core functionality
+# The system uses standard library modules only:
+# - json
+# - subprocess
+# - pathlib
+# - datetime
+# - sys
+# - os
+# - time
+# - typing
+
+# Optional: For enhanced functionality
+# llmlingua>=0.2.0  # For context compression (optional)
