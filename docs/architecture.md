@@ -31,7 +31,28 @@ Läuft als Background-Task, konsolidiert wenn:
 - >10 neue Events
 - Explizit angefordert
 
-### 4. Agent-Integration
+### 4. Watch Daemon (NEU!)
+
+Überwacht Ralph automatisch und greift bei Stillstand ein:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  orchestrate watch                                      │
+│     │                                                   │
+│     ├──▶ Überwacht @fix_plan.md alle 60 Sekunden       │
+│     ├──▶ Erkennt Stillstand (>180s ohne Änderung)      │
+│     ├──▶ Schreibt Hints → .orchestrator_hints.md       │
+│     └──▶ Eskaliert nach 3x Stillstand                  │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Kommunikationsdateien:**
+| Datei | Zweck |
+|-------|-------|
+| `.orchestrator_hints.md` | Hints vom Watch-Daemon für Ralph |
+| `.ralph_status.json` | Status von Ralph (optional) |
+
+### 5. Agent-Integration
 
 Jeder Agent erhält beim Start:
 ```bash
@@ -56,9 +77,45 @@ Agent A                    Memory Store              Gemini Daemon
    │←── get_context() ─────────│                          │
 ```
 
-## Beispiel: Ralph + Gemini Memory
+## Neuer Workflow mit Watch Daemon
 
-1. User startet Ralph mit Aufgabe
-2. Ralph schreibt Progress → events.jsonl
-3. Gemini Daemon (alle 30 min): Fasst Progress zusammen
-4. Nächste Ralph-Session: Liest Zusammenfassung als Kontext
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Terminal 1: orchestrate watch                                  │
+│     │                                                           │
+│     │ überwacht @fix_plan.md                                    │
+│     │                                                           │
+│     └───▶ Bei Stillstand: schreibt .orchestrator_hints.md      │
+│                    │                                            │
+│                    ▼                                            │
+│  Terminal 2: ralph --monitor                                    │
+│     │                                                           │
+│     ├──▶ Liest PROMPT.md + @fix_plan.md                        │
+│     ├──▶ Prüft .orchestrator_hints.md                          │
+│     ├──▶ Führt Tasks aus (Claude)                              │
+│     └──▶ Markiert [x] → Watch erkennt Fortschritt              │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Beispiel: Ralph + Gemini Memory + Watch
+
+1. User startet `orchestrate watch` (Hintergrund)
+2. User startet `ralph --monitor`
+3. Ralph schreibt Progress → @fix_plan.md
+4. Watch Daemon überwacht → erkennt Stillstand
+5. Watch schreibt Hint → .orchestrator_hints.md
+6. Ralph liest Hint, passt Strategie an
+7. Gemini Daemon (alle 30 min): Fasst Progress zusammen
+8. Nächste Ralph-Session: Liest Zusammenfassung als Kontext
+
+## Quick Start
+
+```bash
+# Alles auf einmal starten:
+claude-start --ralph
+
+# Oder manuell:
+orchestrate watch &      # Watch im Hintergrund
+ralph --monitor          # Ralph im Vordergrund
+```
