@@ -118,8 +118,44 @@ def log_decision(action: str, input_summary: str, output_summary: str):
         f.write(json.dumps(decision, ensure_ascii=False) + '\n')
 
 
+def is_running_inside_claude() -> bool:
+    """Detect if we're running inside a Claude Code session."""
+    # Claude Code sets specific environment variables
+    claude_indicators = [
+        os.getenv("CLAUDE_CODE_SESSION"),
+        os.getenv("CLAUDE_CONVERSATION_ID"),
+        # Check if parent process contains 'claude'
+        "claude" in os.getenv("_", "").lower(),
+    ]
+    return any(claude_indicators)
+
+
 def init_task(user_task: str):
     """Initialize a new task - Gemini creates PROMPT.md and @fix_plan.md."""
+
+    # WARNUNG: Wenn innerhalb von Claude ausgeführt
+    if is_running_inside_claude():
+        print("\n" + "="*60)
+        print("⚠️  WARNUNG: Du führst 'orchestrate init' INNERHALB von Claude aus!")
+        print("="*60)
+        print("""
+Das ist NICHT der empfohlene Workflow!
+
+Claude wird die generierten Dateien sofort sehen und
+selbst anfangen zu arbeiten - ohne Ralph-Loop, ohne Watch-Daemon.
+
+EMPFOHLENER WORKFLOW:
+  1. Beende diese Claude Session
+  2. Führe in einem normalen Terminal aus:
+     $ orchestrate init "Deine Aufgabe"
+  3. Dann starte Ralph:
+     $ ralph --monitor
+
+Trotzdem fortfahren? Die Dateien werden generiert, aber
+du solltest NICHT weitermachen - sondern neu starten mit Ralph.
+""")
+        print("="*60 + "\n")
+
     print(f"Initialisiere Aufgabe: {user_task[:100]}...")
 
     # Gather context
@@ -148,6 +184,8 @@ KONTEXT (bisheriges Wissen):
 DEINE AUFGABE:
 Erstelle eine vollständige Projektplanung für das Ralph-System.
 
+WICHTIG: Integriere das bisherige Wissen in die PROMPT.md, damit Claude den Kontext hat!
+
 AUSGABE-FORMAT (EXAKT so, mit den Markern):
 
 ---PROMPT_MD_START---
@@ -156,10 +194,10 @@ AUSGABE-FORMAT (EXAKT so, mit den Markern):
 ## Ziel
 [Klare Beschreibung des Ziels]
 
-## Kontext
-[Relevante Hintergrundinformationen]
+## Kontext aus vorherigen Sessions
+""" + (context_summary if context_summary else "[Keine vorherigen Informationen]") + """
 
-## Anforderungen
+## Aktuelle Anforderungen
 1. [Anforderung 1]
 2. [Anforderung 2]
 ...
@@ -219,6 +257,20 @@ Sei präzise, priorisiere sinnvoll, und denke an alle notwendigen Schritte!
 
     # Write files
     if prompt_md:
+        # Stelle sicher, dass Session-Kontext enthalten ist
+        if context_summary and "## Kontext aus vorherigen Sessions" not in prompt_md:
+            # Füge Kontext nach dem ersten Header ein
+            lines = prompt_md.split('\n')
+            insert_pos = 2  # Nach Titel
+            for i, line in enumerate(lines):
+                if line.startswith('## '):
+                    insert_pos = i
+                    break
+            context_section = f"\n## Kontext aus vorherigen Sessions\n{context_summary}\n"
+            lines.insert(insert_pos, context_section)
+            prompt_md = '\n'.join(lines)
+            print("✓ Session-Kontext in PROMPT.md eingefügt")
+
         PROMPT_FILE.write_text(prompt_md)
         print(f"✓ PROMPT.md erstellt ({len(prompt_md)} Zeichen)")
     else:
@@ -233,7 +285,9 @@ Sei präzise, priorisiere sinnvoll, und denke an alle notwendigen Schritte!
 
     log_decision("init", user_task[:200], f"prompt_md:{len(prompt_md)}, fix_plan:{len(fix_plan)}")
 
-    print("\n🚀 Bereit! Starte mit: ralph --monitor")
+    # Zeige Memory-Status
+    print(f"\n📚 Memory-Status: {len(events)} Events, {len(knowledge)} Knowledge-Einträge")
+    print("🚀 Bereit! Starte mit: ralph --monitor")
 
 
 def analyze_situation():

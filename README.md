@@ -173,25 +173,42 @@ The system uses multiple AI providers with automatic fallback:
 
 ## Quick Start
 
+> ⚠️ **IMPORTANT:** Run `orchestrate init` in a **regular terminal**, NOT inside Claude Code!
+> If you run it inside Claude, Claude will see the generated files and start working immediately
+> without the Ralph loop or Watch daemon - losing all orchestration benefits.
+
 ```bash
-# 1. Start the system (launches daemon, shows status)
-claude-start
+# 1. Open a REGULAR TERMINAL (not Claude Code!)
+cd /your/project
 
 # 2. Initialize a new task (Gemini plans everything)
 orchestrate init "Create a REST API for a booking system with Python Flask"
 
-# 3. Start autonomous execution
+# 3. Start Watch daemon (monitors for stalls)
+orchestrate watch &
+
+# 4. Start autonomous execution (this starts Claude properly!)
 ralph --monitor
 
-# 4. If stuck on something
+# 5. If stuck on something (in another terminal)
 orchestrate stuck "Getting connection timeout errors"
 
-# 5. Check progress analysis
+# 6. Check progress analysis
 orchestrate analyze
 
-# 6. End session with summary
+# 7. End session with summary
 orchestrate summary
 ```
+
+### Why This Workflow?
+
+| Step | What happens |
+|------|--------------|
+| `orchestrate init` | Gemini creates PROMPT.md + @fix_plan.md |
+| `orchestrate watch` | Daemon monitors @fix_plan.md for stalls |
+| `ralph --monitor` | Starts Claude in a controlled loop |
+| Claude | Executes tasks, marks [x] in @fix_plan.md |
+| Watch Daemon | Detects stalls, writes hints for Claude |
 
 ## Components
 
